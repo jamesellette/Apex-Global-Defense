@@ -26,7 +26,7 @@ class CountryBase(BaseModel):
 class CountryCreate(CountryBase):
     """Schema for creating a country."""
 
-    metadata: dict | None = None
+    extra_data: dict | None = None
 
 
 class CountryUpdate(BaseModel):
@@ -43,14 +43,14 @@ class CountryUpdate(BaseModel):
     lat: float | None = None
     lng: float | None = None
     flag_url: str | None = None
-    metadata: dict | None = None
+    extra_data: dict | None = None
 
 
 class CountryResponse(CountryBase):
     """Schema for country response."""
 
     id: str
-    metadata: dict | None = None
+    extra_data: dict | None = None
     created_at: datetime
     updated_at: datetime
 
