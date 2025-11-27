@@ -1,4 +1,26 @@
-"""Seed data for initial database population."""
+"""Seed data for initial database population.
+
+DISCLAIMER: This data is compiled from publicly available sources including
+GlobalFirepower, IISS Military Balance, SIPRI, and government publications.
+This data is provided for educational and simulation purposes only.
+
+IMPORTANT NOTICES:
+- All figures are approximate and may not reflect current real-world values
+- Defense budgets and military capabilities change frequently
+- This data should NOT be used for actual intelligence or defense planning
+- Geographic coordinates are capital city centers, not military installations
+- Population and GDP figures are estimates and subject to revision
+
+DATA SOURCES (all publicly available):
+- GlobalFirepower (www.globalfirepower.com)
+- IISS Military Balance
+- SIPRI Military Expenditure Database
+- CIA World Factbook
+- World Bank Open Data
+
+For accurate, up-to-date information, please consult official government
+sources and verified intelligence publications.
+"""
 
 # Top 50 nations by military strength with basic data
 # Data based on publicly available sources (GlobalFirepower, IISS, etc.)

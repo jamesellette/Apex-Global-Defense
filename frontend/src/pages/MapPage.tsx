@@ -6,15 +6,16 @@ import api from '../services/api';
 import type { Country } from '../types';
 import './MapPage.css';
 
-// Note: In production, this should come from environment variables
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || 'pk.placeholder';
+// Mapbox access token from environment variables
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+const isMapboxConfigured = Boolean(MAPBOX_TOKEN && !MAPBOX_TOKEN.startsWith('pk.placeholder'));
 
 const MapPage = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const { viewState, setViewState, activeLayers, toggleLayer } = useMapStore();
   const { setCountries, selectedCountry, setSelectedCountry } = useCountryStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(isMapboxConfigured);
   const [mapStyle, setMapStyle] = useState<'dark' | 'satellite' | 'light'>('dark');
 
   const addCountryMarkers = useCallback((countryData: Country[]) => {
@@ -65,10 +66,11 @@ const MapPage = () => {
   }, [setCountries, addCountryMarkers]);
 
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    // Skip map initialization if Mapbox is not configured
+    if (!isMapboxConfigured || !mapContainer.current || map.current) return;
 
     // Initialize map
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+    mapboxgl.accessToken = MAPBOX_TOKEN!;
 
     const styles: Record<string, string> = {
       dark: 'mapbox://styles/mapbox/dark-v11',
@@ -76,29 +78,35 @@ const MapPage = () => {
       light: 'mapbox://styles/mapbox/light-v11',
     };
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: styles[mapStyle],
-      center: [viewState.longitude, viewState.latitude],
-      zoom: viewState.zoom,
-      pitch: viewState.pitch || 0,
-      bearing: viewState.bearing || 0,
-    });
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: styles[mapStyle],
+        center: [viewState.longitude, viewState.latitude],
+        zoom: viewState.zoom,
+        pitch: viewState.pitch || 0,
+        bearing: viewState.bearing || 0,
+      });
 
-    // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    map.current.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
-    map.current.addControl(
-      new mapboxgl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: true,
-      }),
-      'top-right'
-    );
+      // Add navigation controls
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      map.current.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
+      map.current.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: { enableHighAccuracy: true },
+          trackUserLocation: true,
+        }),
+        'top-right'
+      );
 
     map.current.on('load', () => {
       setIsLoading(false);
       loadCountryData();
+    });
+
+    map.current.on('error', (e) => {
+      console.error('Map error:', e);
+      setIsLoading(false);
     });
 
     map.current.on('moveend', () => {
@@ -112,6 +120,11 @@ const MapPage = () => {
         pitch: map.current.getPitch(),
       });
     });
+    } catch (error) {
+      console.error('Failed to initialize map:', error);
+      // If map fails to initialize, it's likely a token issue
+      setIsLoading(false);
+    }
 
     return () => {
       if (map.current) {
@@ -150,6 +163,29 @@ const MapPage = () => {
     { id: 'infrastructure', label: 'Infrastructure', icon: '🏭' },
     { id: 'population', label: 'Population Density', icon: '👥' },
   ];
+
+  // Show error message if Mapbox is not configured
+  if (!isMapboxConfigured) {
+    return (
+      <div className="map-page">
+        <div className="map-error">
+          <div className="error-icon">🗺️</div>
+          <h2>Map Configuration Required</h2>
+          <p>Mapbox token not configured. Please set VITE_MAPBOX_TOKEN environment variable.</p>
+          <div className="error-instructions">
+            <h3>Setup Instructions:</h3>
+            <ol>
+              <li>Create a free account at <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer">mapbox.com</a></li>
+              <li>Get your public access token from the dashboard</li>
+              <li>Create a <code>.env</code> file in the frontend directory</li>
+              <li>Add: <code>VITE_MAPBOX_TOKEN=your_token_here</code></li>
+              <li>Restart the development server</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="map-page">

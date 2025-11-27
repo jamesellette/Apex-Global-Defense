@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["development", "staging", "production"] = "development"
 
     # Security
+    # IMPORTANT: In production, set SECRET_KEY via environment variable
+    # A new random key is generated only as a fallback for development
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     ALGORITHM: str = "HS256"

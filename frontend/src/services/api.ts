@@ -52,7 +52,9 @@ class ApiService {
       (error: AxiosError) => {
         if (error.response?.status === 401) {
           this.logout();
-          window.location.href = '/login';
+          // Dispatch custom event for navigation - can be handled by React components
+          const event = new CustomEvent('auth:unauthorized', { detail: { redirect: '/login' } });
+          window.dispatchEvent(event);
         }
         return Promise.reject(error);
       }

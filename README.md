@@ -123,13 +123,15 @@ POSTGRES_PORT=5432
 POSTGRES_USER=agd
 POSTGRES_PASSWORD=your_secure_password
 POSTGRES_DB=apex_global_defense
-SECRET_KEY=your_secret_key
+# IMPORTANT: Generate a secure secret key for production with: python -c "import secrets; print(secrets.token_urlsafe(32))"
+SECRET_KEY=your_secret_key_change_in_production
 DEBUG=true
 ```
 
 **Frontend (.env):**
 ```env
 VITE_API_URL=http://localhost:8000
+# Get your token from https://mapbox.com (required for map functionality)
 VITE_MAPBOX_TOKEN=your_mapbox_token
 ```
 
