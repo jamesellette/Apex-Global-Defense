@@ -7,7 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.v1.endpoints.auth import get_current_user
+from app.api.v1.endpoints.auth import get_current_user, get_current_user_optional
 from app.db.session import get_db
 from app.models.country import Country
 from app.models.military import MilitaryBranch, MilitaryEquipment
@@ -31,13 +31,13 @@ router = APIRouter()
 @router.get("/", response_model=list[CountryResponse])
 async def list_countries(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    _current_user: Annotated[User | None, Depends(get_current_user_optional)],
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     region: str | None = None,
     search: str | None = None,
 ) -> list[Country]:
-    """List all countries with optional filtering."""
+    """List all countries with optional filtering. Public endpoint."""
     query = select(Country)
     
     if region:

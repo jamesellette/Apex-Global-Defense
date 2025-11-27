@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../store';
 import api from '../services/api';
@@ -12,11 +12,7 @@ const ProjectsPage = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadProjects();
-  }, []);
-
-  const loadProjects = async () => {
+  const loadProjects = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getProjects({ limit: 100 });
@@ -26,7 +22,11 @@ const ProjectsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setLoading, setProjects]);
+
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
 
   const handleDeleteProject = async (projectId: string) => {
     if (!confirm('Are you sure you want to delete this project?')) return;
@@ -210,7 +210,7 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose, onCrea
     try {
       const project = await api.createProject(formData);
       onCreate(project);
-    } catch (err) {
+    } catch {
       setError('Failed to create project');
     } finally {
       setIsSubmitting(false);

@@ -100,18 +100,14 @@ AI_PROVIDERS = [
 
 
 @router.get("/providers", response_model=list[AIProviderInfo])
-async def list_providers(
-    current_user: Annotated[User, Depends(get_current_user)],
-) -> list[AIProviderInfo]:
-    """List available AI providers."""
+async def list_providers() -> list[AIProviderInfo]:
+    """List available AI providers. Public endpoint."""
     return AI_PROVIDERS
 
 
 @router.get("/features", response_model=list[AIFeatureInfo])
-async def list_features(
-    current_user: Annotated[User, Depends(get_current_user)],
-) -> list[AIFeatureInfo]:
-    """List available AI features."""
+async def list_features() -> list[AIFeatureInfo]:
+    """List available AI features. Public endpoint."""
     return AI_FEATURES
 
 
